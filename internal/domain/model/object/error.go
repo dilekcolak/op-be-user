@@ -39,7 +39,7 @@ const (
 	ErrPassword        string = "password"
 	ErrToken           string = "token"
 	ErrAuthentication  string = "authentication"
-	ErrRefrehsToken    string = "refreshtoken"
+	ErrRefreshToken    string = "refreshtoken"
 	ErrEmail           string = "email"
 	ErrRole            string = "role"
 	ErrUserNameOrEmail string = "username_or_email"
@@ -62,7 +62,7 @@ var (
 	ErrorUserIsInactive                                 error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrInactive)
 	ErrorUserUsernameOrEmailAreEmpty                    error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrUserNameOrEmail + smodel.ErrSep + ErrEmpty)
 	ErrorUserTokenIsEmpty                               error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrToken + smodel.ErrSep + ErrEmpty)
-	ErrorUserAuthenticationTokenAndRefreshTokenAreEmpty error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrAuthentication + smodel.ErrSep + ErrRefrehsToken + smodel.ErrSep + ErrEmpty)
+	ErrorUserAuthenticationTokenAndRefreshTokenAreEmpty error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrAuthentication + smodel.ErrSep + ErrRefreshToken + smodel.ErrSep + ErrEmpty)
 	ErrorUserUsernameIsEmpty                            error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrUserName + smodel.ErrSep + ErrEmpty)
 	ErrorUserUsernameIsExists                           error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrUserName + smodel.ErrSep + ErrAlreadyExists)
 	ErrorUserUsernameIsTooShort                         error = errors.New(smodel.ErrBase + smodel.ErrSep + ErrUser + smodel.ErrSep + ErrUserName + smodel.ErrSep + ErrTooShort)
