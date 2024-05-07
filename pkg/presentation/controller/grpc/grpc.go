@@ -3,7 +3,6 @@ package presentation
 import (
 	"net"
 
-	pb_authentication "github.com/octoposprime/op-be-shared/pkg/proto/pb/authentication"
 	pb_error "github.com/octoposprime/op-be-shared/pkg/proto/pb/error"
 	pb_user "github.com/octoposprime/op-be-shared/pkg/proto/pb/user"
 	tgrpc "github.com/octoposprime/op-be-shared/tool/grpc"
@@ -16,7 +15,6 @@ import (
 type Grpc struct {
 	pb_error.UnimplementedErorrSvcServer
 	pb_user.UnimplementedUserSvcServer
-	pb_authentication.UnimplementedAuthenticationSvcServer
 	queryHandler   pp_query.QueryPort
 	commandHandler pp_command.CommandPort
 }
@@ -41,7 +39,6 @@ func (a *Grpc) Serve(port string) {
 	)
 	pb_error.RegisterErorrSvcServer(s, a)
 	pb_user.RegisterUserSvcServer(s, a)
-	pb_authentication.RegisterAuthenticationSvcServer(s, a)
 	if err := s.Serve(listener); err != nil {
 		panic(err)
 	}
