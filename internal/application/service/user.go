@@ -2,6 +2,8 @@ package application
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	smodel "github.com/octoposprime/op-be-shared/pkg/model"
@@ -248,4 +250,105 @@ func (a *Service) GetUserPasswordByUserId(ctx context.Context, userId uuid.UUID)
 		return userPassword, err
 	}
 	return userPassword, err
+}
+
+// CheckUserPassword sends the given user password to the repository of the infrastructure layer for checking user password.
+func (a *Service) CheckUserPassword(ctx context.Context, user me.User, userPassword me.UserPassword) (me.User, error) {
+	fmt.Println(user.String(), "user.String")
+	var users me.Users
+	var err error
+	returnErr := errors.New("Request failed")
+	if user.UserName == "" {
+		if user.Email == "" {
+			// err := mo.ErrorUserEmailAndUsernameIsEmpty // TODO : Implement this error
+			err = fmt.Errorf("user email and username is empty")
+			userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+			return me.User{}, returnErr
+		}
+		users, err = a.GetUsersByFilter(ctx, me.UserFilter{Email: user.Email})
+		if err != nil {
+			userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+			go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+			return me.User{}, returnErr
+		}
+	}
+	users, err = a.GetUsersByFilter(ctx, me.UserFilter{UserName: user.UserName})
+	if err != nil {
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+	if users.TotalRows == 0 {
+		err := mo.ErrorUserNotFound
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+	if users.TotalRows > 1 {
+		// err := mo.ErrorMultipleUserFound //TODO : Implement this error
+		err := fmt.Errorf("multiple user found")
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+	if users.TotalRows == 1 {
+		user = users.Users[0]
+	}
+
+	if user.Id.String() == "" || user.Id == (uuid.UUID{}) {
+		err := mo.ErrorUserIdIsEmpty
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+	// if userPassword.UserId.String() == "" || userPassword.UserId == (uuid.UUID{}) {
+	// 	err := mo.ErrorUserIdIsEmpty
+	// 	userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+	// 	go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+	// 	return me.User{}, err
+	// }
+	// Not sure if this Validation is necessary or right approach.
+	// if err := a.ValidatePassword(&userPassword); err != nil {
+	// 	userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+	// 	go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+	// 	return me.User{}, err
+	// }
+	// This may be cause problem in the future if the password rules are changed.
+	// if err := a.CheckPasswordRules(&userPassword); err != nil {
+	// 	userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+	// 	go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+	// 	return me.User{}, err
+	// }
+	fmt.Println(user.String(), "user.String")
+
+	// dbUser, err := a.DbPort.CheckUserPassword(ctx, user, userPassword)
+	dbPassword, err := a.GetUserPasswordByUserId(ctx, user.Id)
+
+	if dbPassword.PasswordStatus != mo.PasswordStatusACTIVE {
+		// err := mo.ErrorUserPasswordIsNotActive //TODO : Implement this error
+		err := fmt.Errorf("user password is not active")
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+
+	isPasswordMatch := dbPassword.ComparePass(userPassword.Password)
+
+	if !isPasswordMatch {
+		// err := mo.ErrorUserPasswordIsNotMatch //TODO : Implement this error
+		err := fmt.Errorf("user password is not match")
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+
+	if err != nil {
+		// err := mo.ErrorUserPasswordIsNotMatch //TODO : Implement this error
+		err := fmt.Errorf("user password is not match")
+		userId, _ := ctx.Value(smodel.QueryKeyUid).(string)
+		go a.Log(context.Background(), me.NewLogData().GenerateLogData(pb_logging.LogType_LogTypeERROR, "CheckUserPassword", userId, err.Error()))
+		return me.User{}, returnErr
+	}
+	return user, nil
 }

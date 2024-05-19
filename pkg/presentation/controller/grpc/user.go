@@ -48,3 +48,10 @@ func (a *Grpc) ChangePassword(ctx context.Context, userPassword *pb_user.UserPas
 	err := a.commandHandler.ChangePassword(ctx, *dto.NewUserPassword(userPassword).ToEntity())
 	return &pb_user.UserPasswordResult{}, err
 }
+
+// CheckUserPassword sends the given user to the user service and returns the result of the password check.
+func (a *Grpc) CheckUserPassword(ctx context.Context, userWithPassword *pb_user.UserWithPassword) (*pb_user.User, error) {
+	user, userPassword := dto.NewUserWithPassword(userWithPassword).ToEntity()
+	data, err := a.commandHandler.CheckUserPassword(ctx, *user, *userPassword)
+	return dto.NewUserFromEntity(data).ToPb(), err
+}

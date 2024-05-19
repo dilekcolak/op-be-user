@@ -33,11 +33,6 @@ func (s *Service) ValidatePassword(userPassword *me.UserPassword) error {
 	return nil
 }
 
-// ValidateToken checks the validity of a token
-func (s *Service) ValidateToken(token *mo.Token) error {
-	return token.Validate()
-}
-
 // CheckUserNameRules checks the rules for usernames
 func (s *Service) CheckUserNameRules(user *me.User) error {
 	if user.UserName == "" {
@@ -98,14 +93,6 @@ func (s *Service) CheckPasswordRules(userPassword *me.UserPassword) error {
 	}
 	if strings.Contains(userPassword.Password, " ") {
 		return mo.ErrorUserPasswordIsNotValid
-	}
-	return nil
-}
-
-// CheckIsAuthenticable checks if a user is authenticable based on their status
-func (s *Service) CheckIsAuthenticable(user *me.User) error {
-	if user.UserStatus == mo.UserStatusINACTIVE {
-		return mo.ErrorUserIsInactive
 	}
 	return nil
 }

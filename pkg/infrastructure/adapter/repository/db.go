@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	smodel "github.com/octoposprime/op-be-shared/pkg/model"
@@ -193,4 +194,19 @@ func (a DbAdapter) ChangePassword(ctx context.Context, userPassword me.UserPassw
 		return me.UserPassword{}, result.Error
 	}
 	return *userPasswordDbMapper.ToEntity(), nil
+}
+
+// CheckUserPassword checks the password of the given user from db with ComparePass method.
+func (a DbAdapter) CheckUserPassword(ctx context.Context, user me.User, userPassword me.UserPassword) (me.User, error) {
+	// Get the active password of the user from db
+	userPasswordDb, err := a.GetUserPasswordByUserId(ctx, user.Id)
+	if err != nil {
+		return me.User{}, err
+	}
+	// Compare the given password with the active password
+	if !userPasswordDb.ComparePass(userPassword.UserPassword.String()) {
+		// return me.User{}, mo.ErrorUserPasswordNotMatch
+		return me.User{}, errors.New("password not match")
+	}
+	return user, nil
 }

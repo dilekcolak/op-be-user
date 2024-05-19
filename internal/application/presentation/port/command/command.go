@@ -4,6 +4,5 @@ package application
 // It is used to communicate with the application layer.
 type CommandPort interface {
 	LoggingCommandPort
-	AuthenticationCommandPort
 	UserCommandPort
 }
