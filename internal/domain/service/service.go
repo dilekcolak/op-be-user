@@ -33,11 +33,6 @@ func (s *Service) ValidatePassword(userPassword *me.UserPassword) error {
 	return nil
 }
 
-// ValidateToken checks the validity of a token
-func (s *Service) ValidateToken(token *mo.Token) error {
-	return token.Validate()
-}
-
 // CheckUserNameRules checks the rules for usernames
 func (s *Service) CheckUserNameRules(user *me.User) error {
 	if user.UserName == "" {
