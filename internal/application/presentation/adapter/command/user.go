@@ -35,3 +35,8 @@ func (a CommandAdapter) DeleteUser(ctx context.Context, user me.User) (me.User, 
 func (a CommandAdapter) ChangePassword(ctx context.Context, userPassword me.UserPassword) error {
 	return a.Service.ChangePassword(ctx, userPassword)
 }
+
+// CheckUserPassword sends the given user and user password to the application layer for checking user password.
+func (a CommandAdapter) CheckUserPassword(ctx context.Context, user me.User, userPassword me.UserPassword) (me.User, error) {
+	return a.Service.CheckUserPassword(ctx, user, userPassword)
+}
