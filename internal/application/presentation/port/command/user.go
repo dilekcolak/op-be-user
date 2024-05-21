@@ -26,4 +26,7 @@ type UserCommandPort interface {
 
 	// ChangePassword sends the given user password to the application layer for changing user password.
 	ChangePassword(ctx context.Context, userPassword me.UserPassword) error
+
+	// CheckUserPassword sends the given user to the user service and returns the result of the password check.
+	CheckUserPassword(ctx context.Context, user me.User, userPassword me.UserPassword) (me.User, error)
 }
