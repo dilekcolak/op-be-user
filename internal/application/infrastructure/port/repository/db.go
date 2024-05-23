@@ -28,4 +28,7 @@ type DbPort interface {
 
 	// ChangePassword changes the poassword of the given user in the database.
 	ChangePassword(ctx context.Context, userPassword me.UserPassword) (me.UserPassword, error)
+
+	// CheckUserPassword checks the password of the given user.
+	CheckUserPassword(ctx context.Context, user me.User, userPassword me.UserPassword) (me.User, error)
 }
